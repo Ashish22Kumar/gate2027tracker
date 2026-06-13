@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- PWA Meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GATE 2027">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="GATE 2027">
+<meta name="theme-color" content="#080810">
+<meta name="description" content="GATE 2027 Daily Study Tracker for Ashu">
+
+<!-- PWA Manifest injected via JS below -->
+<link id="manifest-link" rel="manifest">
+
+<!-- Apple Touch Icons (inline SVG → base64) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjMyIiBmaWxsPSIjMDgwODEwIi8+PHJlY3QgeD0iMjQiIHk9IjI0IiB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgcng9IjI0IiBmaWxsPSIjMTQwODAwIi8+PHRleHQgeD0iOTYiIHk9IjcyIiBmb250LXNpemU9IjQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+UPC90ZXh0Pjx0ZXh0IHg9Ijk2IiB5PSIxMjAiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNGRjZCMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5HQVRFIDIwMjc8L3RleHQ+PHRleHQgeD0iOTYiIHk9IjE1MiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzU1NTU1NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPlRSQUNLRVI8L3RleHQ+PC9zdmc+">
+
+<title>GATE 2027 Tracker · Ashu</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --saffron:#FF6B00;--saffron-d:#FF6B0022;--saffron-b:#FF6B0055;
+  --study:#3B82F6;--lec:#00C896;--gold:#F5A623;--eve:#E84393;
+  --bg:#080810;--card:#16161F;--border:#ffffff0f;--text:#F0F0F8;--muted:#555;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Bebas Neue',cursive;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+button{font-family:var(--sans);cursor:pointer;border:none;outline:none;}
+textarea{font-family:var(--sans);outline:none;resize:none;}
+#app{max-width:480px;margin:0 auto;min-height:100vh;}
+
+/* ── INSTALL BANNER ── */
+#install-banner{
+  display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 32px);max-width:448px;
+  background:#1A1A2E;border:1px solid var(--saffron-b);border-radius:14px;
+  padding:14px 16px;z-index:9999;box-shadow:0 8px 32px #00000088;
+}
+#install-banner.show{display:flex;align-items:center;gap:12px;}
+.ib-icon{font-size:28px;flex-shrink:0;}
+.ib-text{flex:1;}
+.ib-title{font-size:13px;font-weight:700;color:var(--text);}
+.ib-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ib-btn{padding:8px 14px;background:var(--saffron);border-radius:8px;color:#000;font-size:12px;font-weight:700;flex-shrink:0;}
+.ib-close{padding:4px 8px;background:transparent;color:var(--muted);font-size:16px;flex-shrink:0;}
+
+/* ── OFFLINE TOAST ── */
+#offline-toast{
+  display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);
+  background:#1A1A2E;border:1px solid #F5A62366;border-radius:8px;
+  padding:8px 16px;font-size:12px;color:var(--gold);z-index:9998;
+  font-family:var(--mono);letter-spacing:1px;
+}
+#offline-toast.show{display:block;}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(160deg,#140800 0%,#080810 70%);border-bottom:1px solid var(--border);padding:28px 20px 0;position:relative;overflow:hidden;}
+.hdr-glow{position:absolute;top:-60px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,#FF6B0025 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.hdr-lbl{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--saffron);text-transform:uppercase;margin-bottom:6px;}
+.hdr-title{font-family:var(--display);font-size:38px;line-height:1;letter-spacing:1px;}
+.hdr-title span{color:var(--saffron);}
+.hdr-sub{font-size:12px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px;}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#00C896;display:inline-block;}
+.online-dot.off{background:#FF6B00;}
+.tabs{display:flex;margin-top:20px;}
+.tab{flex:1;padding:11px 0;background:transparent;border:none;border-bottom:2px solid #ffffff10;color:#555;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);transition:all .2s;}
+.tab.active{color:var(--saffron);border-bottom:2px solid var(--saffron);background:#FF6B0008;}
+.body{padding:16px 16px 100px;}
+.hidden{display:none!important;}
+.sh{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.date-bar{display:flex;justify-content:space-between;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.date-val{font-size:16px;font-weight:700;}
+.score-num{font-family:var(--display);font-size:30px;line-height:1;text-align:right;}
+.qs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.qs-item{padding:12px 6px;text-align:center;border-right:1px solid var(--border);}
+.qs-item:last-child{border-right:none;}
+.qs-val{font-size:13px;font-weight:700;line-height:1;}
+.qs-lbl{font-size:7px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.sc{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--study);}
+.sc-top{display:flex;align-items:center;gap:10px;}
+.sc-icon{font-size:18px;flex-shrink:0;}
+.sc-title{font-size:13px;font-weight:600;line-height:1.3;}
+.sc-time{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.toggle-btn{padding:5px 10px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:1px;flex-shrink:0;font-family:var(--mono);background:#ffffff08;border:1px solid #ffffff15;color:#555;margin-left:auto;transition:all .15s;}
+.toggle-btn.done{background:var(--saffron-d);border-color:var(--saffron-b);color:var(--saffron);}
+.hp{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.hp-lbl{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+.hp-lbl.lec{color:var(--lec);}
+.hp-btns{display:flex;gap:4px;}
+.hr-btn{padding:3px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:600;background:#ffffff08;border:1px solid #ffffff10;color:#555;}
+.hr-btn.as{background:#3B82F644;border-color:var(--study);color:#fff;}
+.hr-btn.al{background:#00C89633;border-color:var(--lec);color:var(--lec);}
+.lec-st{font-size:10px;margin-left:6px;}
+.mood-row{display:flex;justify-content:space-between;gap:6px;margin-bottom:4px;}
+.mood-btn{flex:1;padding:10px 0;border-radius:8px;font-size:22px;background:#ffffff08;border:1px solid #ffffff10;}
+.mood-btn.active{background:#FF6B0033;border-color:var(--saffron);font-size:26px;}
+.note-ta{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;color:#CCC;font-size:13px;min-height:80px;line-height:1.5;}
+.note-ta:focus{border-color:#ffffff25;}
+.save-btn{margin-top:8px;width:100%;padding:12px;background:var(--saffron-d);border:1px solid var(--saffron-b);border-radius:10px;color:var(--saffron);font-size:13px;font-weight:700;letter-spacing:1px;}
+.save-btn.saved{background:#00C89622;border-color:#00C89655;color:var(--lec);}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.nav-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 18px;color:#888;font-size:15px;}
+.nv{font-size:13px;font-weight:700;}
+.wk-card{border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);}
+.wk-card.today{background:#FF6B0008;border-color:#FF6B0044;}
+.wk-left{min-width:36px;text-align:center;}
+.wk-day{font-size:12px;font-weight:700;font-family:var(--mono);color:#777;}
+.wk-day.today{color:var(--saffron);}
+.wk-date{font-size:11px;color:#444;}
+.today-badge{font-size:8px;color:var(--saffron);letter-spacing:1px;margin-top:2px;}
+.wk-mid{flex:1;}
+.wk-right{text-align:right;min-width:50px;}
+.wk-score{font-family:var(--display);font-size:20px;line-height:1;}
+.wk-hrs{font-size:10px;color:#555;margin-top:2px;}
+.wk-lec{font-size:10px;color:var(--lec);}
+.wk-mood{font-size:16px;margin-top:4px;}
+.wk-note{font-size:10px;color:#555;margin-top:4px;font-style:italic;}
+.pips{display:flex;gap:4px;flex-wrap:wrap;}
+.pip{width:8px;height:8px;border-radius:50%;}
+.prog-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:8px;}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:8px;}
+.prog-bar-bg{background:#ffffff0f;border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px;}
+.prog-fill{height:100%;border-radius:4px;background:var(--lec);transition:width .4s;}
+.prog-sub{font-size:11px;color:#444;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:10px;}
+.cal-lbl{text-align:center;font-size:9px;color:#444;font-family:var(--mono);padding:4px 0;}
+.cal-day{border-radius:6px;padding:4px 2px;text-align:center;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #ffffff08;background:#ffffff05;}
+.cal-day.today-cal{border-color:var(--saffron)!important;box-shadow:0 0 8px #FF6B0033;}
+.cal-dn{font-size:10px;font-weight:600;}
+.cal-sc{font-size:8px;font-weight:700;}
+.cal-mood{font-size:8px;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:#555;}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.streak-nums{display:flex;gap:24px;margin-bottom:12px;}
+.streak-n{font-family:var(--display);font-size:32px;line-height:1;}
+.streak-l{font-size:9px;color:#555;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.streak-dots{display:flex;gap:3px;flex-wrap:wrap;}
+.sd{width:12px;height:12px;border-radius:2px;background:#ffffff08;border:1px solid #ffffff08;}
+.sd.done{background:var(--saffron);border-color:#FF6B0066;}
+.note-item{background:var(--card);border:1px solid #ffffff08;border-radius:8px;padding:10px 14px;margin-bottom:6px;}
+.note-date{font-size:9px;color:#444;font-family:var(--mono);margin-bottom:3px;}
+.note-text{font-size:12px;color:#8888AA;line-height:1.5;}
+.action-row{display:flex;gap:8px;margin-top:12px;}
+.act-btn{flex:1;padding:11px;background:#ffffff08;border:1px solid var(--border);border-radius:10px;color:#888;font-size:11px;font-family:var(--mono);letter-spacing:.8px;}
+.act-btn.primary{background:var(--saffron-d);border-color:var(--saffron-b);color:var(--saffron);}
+</style>
+</head>
+<body>
+
+<!-- Offline Toast -->
+<div id="offline-toast">📵 OFFLINE MODE</div>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <div class="ib-icon">📲</div>
+  <div class="ib-text">
+    <div class="ib-title">Install as App</div>
+    <div class="ib-sub">Works fully offline · No browser needed</div>
+  </div>
+  <button class="ib-btn" onclick="installApp()">Install</button>
+  <button class="ib-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-glow"></div>
+    <div class="hdr-lbl">GATE 2027 · PREPARATION</div>
+    <div class="hdr-title">DAILY <span>TRACKER</span></div>
+    <div class="hdr-sub">
+      <span class="online-dot" id="net-dot"></span>
+      <span id="net-lbl">Ashu · Sadhana + Study + Discipline</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('daily')">Daily</button>
+      <button class="tab" onclick="switchTab('weekly')">Weekly</button>
+      <button class="tab" onclick="switchTab('monthly')">Monthly</button>
+    </div>
+  </div>
+
+  <!-- DAILY VIEW -->
+  <div id="view-daily" class="body">
+    <div class="date-bar">
+      <div><div class="lbl">TODAY</div><div class="date-val" id="d-date"></div></div>
+      <div><div class="lbl" style="text-align:right">DAY SCORE</div><div class="score-num" id="d-score"></div></div>
+    </div>
+    <div class="qs">
+      <div class="qs-item"><div class="qs-val" id="qs-lec" style="color:#00C896">—</div><div class="qs-lbl">Lectures</div></div>
+      <div class="qs-item"><div class="qs-val" id="qs-study" style="color:#3B82F6">—</div><div class="qs-lbl">Study hrs</div></div>
+      <div class="qs-item"><div class="qs-val" id="qs-sad" style="color:#FF6B00">—</div><div class="qs-lbl">Sadhana</div></div>
+      <div class="qs-item"><div class="qs-val" id="qs-read" style="color:#F5A623">—</div><div class="qs-lbl">Reading</div></div>
+    </div>
+    <div class="sh">SLOT CHECKLIST</div>
+    <div id="slot-cards"></div>
+    <div class="sh">HOW WAS TODAY?</div>
+    <div class="mood-row" id="mood-row"></div>
+    <div class="sh">DAILY NOTE</div>
+    <textarea class="note-ta" id="note-ta" placeholder="Topics covered today? What went well? What to improve?"></textarea>
+    <button class="save-btn" id="save-btn" onclick="saveNote()">Save Note</button>
+    <div class="action-row">
+      <button class="act-btn" onclick="exportData()">⬇ Backup JSON</button>
+      <button class="act-btn" onclick="showImport()">⬆ Restore</button>
+      <button class="act-btn primary" id="install-btn" style="display:none" onclick="installApp()">📲 Install App</button>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+
+  <!-- WEEKLY VIEW -->
+  <div id="view-weekly" class="body hidden">
+    <div class="nav-row">
+      <button class="nav-btn" onclick="shiftWeek(-1)">‹ Prev</button>
+      <div style="text-align:center"><div class="lbl">WEEK OF</div><div class="nv" id="w-range"></div></div>
+      <button class="nav-btn" onclick="shiftWeek(1)">Next ›</button>
+    </div>
+    <div class="qs">
+      <div class="qs-item"><div class="qs-val" id="wqs-study" style="color:#3B82F6">—</div><div class="qs-lbl">Study hrs</div></div>
+      <div class="qs-item"><div class="qs-val" id="wqs-lec" style="color:#00C896">—</div><div class="qs-lbl">Lec hrs</div></div>
+      <div class="qs-item"><div class="qs-val" id="wqs-sad" style="color:#FF6B00">—</div><div class="qs-lbl">Sadhana</div></div>
+      <div class="qs-item"><div class="qs-val" id="wqs-avg" style="color:#F5A623">—</div><div class="qs-lbl">Avg score</div></div>
+    </div>
+    <div class="sh">DAILY BREAKDOWN</div>
+    <div id="week-cards"></div>
+    <div class="sh">WEEKLY LECTURE PROGRESS</div>
+    <div class="prog-card">
+      <div class="prog-row">
+        <span style="font-size:11px;color:#666">Target: 35 hrs / week</span>
+        <span style="font-size:12px;font-weight:700;color:#00C896" id="w-lec-val">0/35 hrs</span>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-fill" id="w-lec-bar" style="width:0%"></div></div>
+      <div class="prog-sub" id="w-lec-sub"></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY VIEW -->
+  <div id="view-monthly" class="body hidden">
+    <div class="nav-row">
+      <button class="nav-btn" onclick="shiftMonth(-1)">‹</button>
+      <div class="nv" id="m-title" style="font-size:16px;font-weight:700"></div>
+      <button class="nav-btn" onclick="shiftMonth(1)">›</button>
+    </div>
+    <div class="qs">
+      <div class="qs-item"><div class="qs-val" id="mqs-active" style="color:#3B82F6">—</div><div class="qs-lbl">Active days</div></div>
+      <div class="qs-item"><div class="qs-val" id="mqs-sad" style="color:#FF6B00">—</div><div class="qs-lbl">Sadhana</div></div>
+      <div class="qs-item"><div class="qs-val" id="mqs-study" style="color:#F5A623">—</div><div class="qs-lbl">Study hrs</div></div>
+      <div class="qs-item"><div class="qs-val" id="mqs-lec" style="color:#00C896">—</div><div class="qs-lbl">Lec hrs</div></div>
+    </div>
+    <div class="sh">CONSISTENCY HEATMAP</div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#334;border:1px solid #445"></div>No data</div>
+      <div class="leg"><div class="leg-dot" style="background:#FF6B0033;border:1px solid #FF6B00"></div>&lt;60%</div>
+      <div class="leg"><div class="leg-dot" style="background:#F5A62333;border:1px solid #F5A623"></div>60–85%</div>
+      <div class="leg"><div class="leg-dot" style="background:#00C89633;border:1px solid #00C896"></div>85%+</div>
+    </div>
+    <div class="sh">SADHANA STREAK</div>
+    <div class="prog-card" id="streak-card"></div>
+    <div class="sh">TOPICS COVERED THIS MONTH</div>
+    <div id="notes-list"></div>
+  </div>
+</div>
+
+<script>
+// ── PWA: MANIFEST (injected inline) ──────────────────────────────────────
+(function(){
+  const manifest={
+    name:"GATE 2027 Tracker",
+    short_name:"GATE 2027",
+    description:"Daily GATE 2027 study tracker for Ashu",
+    start_url:"./",
+    display:"standalone",
+    background_color:"#080810",
+    theme_color:"#080810",
+    orientation:"portrait",
+    icons:[
+      {src:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjMyIiBmaWxsPSIjMDgwODEwIi8+PHJlY3QgeD0iMjQiIHk9IjI0IiB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgcng9IjI0IiBmaWxsPSIjMTQwODAwIi8+PHRleHQgeD0iOTYiIHk9IjcyIiBmb250LXNpemU9IjQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+UPC90ZXh0Pjx0ZXh0IHg9Ijk2IiB5PSIxMjAiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNGRjZCMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5HQVRFIDIwMjc8L3RleHQ+PHRleHQgeD0iOTYiIHk9IjE1MiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzU1NTU1NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPlRSQUNLRVI8L3RleHQ+PC9zdmc+",sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"}
+    ]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:"application/json"});
+  document.getElementById("manifest-link").href=URL.createObjectURL(blob);
+})();
+
+// ── PWA: SERVICE WORKER (inline blob) ────────────────────────────────────
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  const swCode=`
+const CACHE='gate2027-v1';
+const ASSETS=[self.location.href];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+    if(res.ok){const clone=res.clone();caches.open(CACHE).then(c=>c.put(e.request,clone));}
+    return res;
+  }).catch(()=>caches.match(e.request))));
+});
+  `;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl,{scope:'./'})
+    .then(()=>console.log('SW registered'))
+    .catch(e=>console.log('SW error:',e));
+})();
+
+// ── DATA ──────────────────────────────────────────────────────────────────
+const SLOTS=[
+  {id:"sadhana", label:"Morning Sadhana",        time:"5:00–7:30 AM",    icon:"🪔",color:"#FF6B00",max:1},
+  {id:"revision",label:"Previous Day Revision",  time:"8:30–9:00 AM",    icon:"🔁",color:"#60A5FA",max:1},
+  {id:"slot1",   label:"Slot 1 — Deep Study",    time:"9:00 AM–1:00 PM", icon:"📚",color:"#3B82F6",max:4,lec:2},
+  {id:"slot2",   label:"Slot 2 — Afternoon",     time:"1:30–3:30 PM",    icon:"📚",color:"#3B82F6",max:2,lec:1},
+  {id:"reading", label:"Book Reading",           time:"3:30–4:00 PM",    icon:"📖",color:"#F5A623",max:1},
+  {id:"slot3",   label:"Slot 3 — Late Afternoon",time:"4:00–6:00 PM",    icon:"📚",color:"#3B82F6",max:2,lec:1},
+  {id:"slot4",   label:"Slot 4 — Evening",       time:"7:30–9:30 PM",    icon:"🌙",color:"#E84393",max:2,lec:1},
+];
+const LEC_SLOTS=["slot1","slot2","slot3","slot4"];
+const MOODS=["😴","😕","😐","😊","🔥"];
+const WDAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+let DATA={};
+let weekRef=new Date();
+let monthRef=new Date();
+let deferredPrompt=null;
+
+function loadData(){try{const r=localStorage.getItem("gate2027");if(r)DATA=JSON.parse(r);}catch(e){}}
+function saveData(){try{localStorage.setItem("gate2027",JSON.stringify(DATA));}catch(e){}}
+function setEntry(key,field,val){if(!DATA[key])DATA[key]={};DATA[key][field]=val;saveData();}
+
+// ── DATES ─────────────────────────────────────────────────────────────────
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;}
+function dateKey(d){return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;}
+function p2(n){return String(n).padStart(2,"0");}
+function parseKey(k){const[y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d);}
+function fmtDate(k){return parseKey(k).toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});}
+function getWeekDays(ref){const d=new Date(ref),day=d.getDay(),mon=new Date(d);mon.setDate(d.getDate()-((day+6)%7));return Array.from({length:7},(_,i)=>{const dd=new Date(mon);dd.setDate(mon.getDate()+i);return dateKey(dd);});}
+function getMonthDays(y,m){const first=new Date(y,m,1),last=new Date(y,m+1,0),days=[];const start=(first.getDay()+6)%7;for(let i=0;i<start;i++)days.push(null);for(let d=1;d<=last.getDate();d++)days.push(dateKey(new Date(y,m,d)));return days;}
+
+// ── SCORING ───────────────────────────────────────────────────────────────
+function calcScore(e){
+  if(!e)return 0;
+  let s=0,mx=0;
+  SLOTS.forEach(sl=>{mx+=sl.max;const v=e[sl.id]||0;if(sl.lec){s+=v;const l=e[sl.id+"_lec"]||0;s+=l>=sl.lec?1:(l/sl.lec);mx+=1;}else s+=v;});
+  return mx>0?Math.round((s/mx)*100):0;
+}
+function scoreColor(p){if(p>=85)return"#00C896";if(p>=60)return"#F5A623";if(p>=30)return"#FF6B00";return"#444";}
+
+// ── NETWORK STATUS ────────────────────────────────────────────────────────
+function updateNetStatus(){
+  const online=navigator.onLine;
+  const dot=document.getElementById("net-dot");
+  const lbl=document.getElementById("net-lbl");
+  const toast=document.getElementById("offline-toast");
+  dot.className="online-dot"+(online?"":" off");
+  lbl.textContent=online?"Online · All data saved locally":"Offline · All data saved locally";
+  toast.className=online?"":"show";
+}
+window.addEventListener("online",updateNetStatus);
+window.addEventListener("offline",updateNetStatus);
+
+// ── INSTALL PROMPT ────────────────────────────────────────────────────────
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById("install-banner").classList.add("show");
+  document.getElementById("install-btn").style.display="block";
+});
+window.addEventListener("appinstalled",()=>{
+  document.getElementById("install-banner").classList.remove("show");
+  document.getElementById("install-btn").style.display="none";
+  deferredPrompt=null;
+});
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById("install-banner").classList.remove("show");});}
+}
+function dismissInstall(){document.getElementById("install-banner").classList.remove("show");}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+let curTab="daily";
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll(".tab").forEach((b,i)=>{b.classList.toggle("active",["daily","weekly","monthly"][i]===t);});
+  ["daily","weekly","monthly"].forEach(v=>{document.getElementById("view-"+v).classList.toggle("hidden",v!==t);});
+  window.scrollTo(0,0);
+  if(t==="daily")renderDaily();
+  if(t==="weekly")renderWeekly();
+  if(t==="monthly")renderMonthly();
+}
+
+// ── DAILY ─────────────────────────────────────────────────────────────────
+function renderDaily(){
+  const today=todayKey();const e=DATA[today]||{};
+  const score=calcScore(e);
+  const lecTotal=LEC_SLOTS.reduce((s,id)=>s+(e[id+"_lec"]||0),0);
+  const studyTotal=SLOTS.filter(s=>s.id.startsWith("slot")).reduce((s,sl)=>s+(e[sl.id]||0),0);
+  document.getElementById("d-date").textContent=fmtDate(today);
+  const sEl=document.getElementById("d-score");sEl.textContent=score+"%";sEl.style.color=scoreColor(score);
+  document.getElementById("qs-lec").textContent=lecTotal+"/5h";
+  document.getElementById("qs-study").textContent=studyTotal+"/9h";
+  document.getElementById("qs-sad").textContent=e.sadhana?"✅":"—";
+  document.getElementById("qs-read").textContent=e.reading?"✅":"—";
+
+  const sc=document.getElementById("slot-cards");sc.innerHTML="";
+  SLOTS.forEach(slot=>{
+    const card=document.createElement("div");
+    card.className="sc";card.style.borderLeftColor=slot.color;
+    let html=`<div class="sc-top"><span class="sc-icon">${slot.icon}</span><div style="flex:1"><div class="sc-title">${slot.label}</div><div class="sc-time">${slot.time}</div></div>`;
+    if(slot.max===1){
+      const done=!!(e[slot.id]);
+      html+=`<button class="toggle-btn${done?" done":""}" onclick="toggleB('${today}','${slot.id}')">${done?"DONE ✓":"MARK"}</button>`;
+    }
+    html+=`</div>`;
+    if(slot.max>1){
+      const cur=e[slot.id]||0;
+      html+=`<div class="hp"><span class="hp-lbl">Study hrs:</span><div class="hp-btns">`;
+      for(let i=0;i<=slot.max;i++)html+=`<button class="hr-btn${cur===i?" as":""}" onclick="setH('${today}','${slot.id}',${i})">${i}h</button>`;
+      html+=`</div></div>`;
+    }
+    if(slot.lec){
+      const cl=e[slot.id+"_lec"]||0;
+      html+=`<div class="hp"><span class="hp-lbl lec">Lecture hrs:</span><div class="hp-btns">`;
+      for(let i=0;i<=slot.lec;i++)html+=`<button class="hr-btn${cl===i?" al":""}" onclick="setL('${today}','${slot.id}_lec',${i})">${i}h</button>`;
+      html+=`</div><span class="lec-st" style="color:${cl>=slot.lec?"#00C896":"#FF6B00"}">${cl>=slot.lec?"✅ Met":"⚠ Need "+slot.lec+"h"}</span></div>`;
+    }
+    card.innerHTML=html;sc.appendChild(card);
+  });
+
+  const mr=document.getElementById("mood-row");mr.innerHTML="";
+  MOODS.forEach(m=>{
+    const btn=document.createElement("button");
+    btn.className="mood-btn"+(e.mood===m?" active":"");
+    btn.textContent=m;
+    btn.onclick=()=>{setEntry(today,"mood",m);renderDaily();};
+    mr.appendChild(btn);
+  });
+  document.getElementById("note-ta").value=e.note||"";
+}
+
+function toggleB(key,field){const cur=(DATA[key]&&DATA[key][field])||0;setEntry(key,field,cur?0:1);renderDaily();}
+function setH(key,field,val){setEntry(key,field,val);renderDaily();}
+function setL(key,field,val){setEntry(key,field,val);renderDaily();}
+function saveNote(){
+  const today=todayKey();
+  setEntry(today,"note",document.getElementById("note-ta").value);
+  const btn=document.getElementById("save-btn");
+  btn.textContent="✅ Saved!";btn.classList.add("saved");
+  setTimeout(()=>{btn.textContent="Save Note";btn.classList.remove("saved");},2000);
+}
+
+// ── WEEKLY ────────────────────────────────────────────────────────────────
+function shiftWeek(dir){weekRef.setDate(weekRef.getDate()+dir*7);renderWeekly();}
+function renderWeekly(){
+  const today=todayKey();const days=getWeekDays(weekRef);
+  document.getElementById("w-range").textContent=fmtDate(days[0])+" – "+fmtDate(days[6]);
+  const totalStudy=days.reduce((s,k)=>s+SLOTS.filter(sl=>sl.id.startsWith("slot")).reduce((s2,sl)=>s2+((DATA[k]||{})[sl.id]||0),0),0);
+  const totalLec=days.reduce((s,k)=>s+LEC_SLOTS.reduce((s2,id)=>s2+((DATA[k]||{})[id+"_lec"]||0),0),0);
+  const sadDays=days.filter(k=>(DATA[k]||{}).sadhana).length;
+  const avgScore=Math.round(days.reduce((s,k)=>s+calcScore(DATA[k]),0)/7);
+  document.getElementById("wqs-study").textContent=totalStudy+"h";
+  document.getElementById("wqs-lec").textContent=totalLec+"/35h";
+  document.getElementById("wqs-sad").textContent=sadDays+"/7";
+  document.getElementById("wqs-avg").textContent=avgScore+"%";
+  const wc=document.getElementById("week-cards");wc.innerHTML="";
+  days.forEach((key,i)=>{
+    const e=DATA[key]||{};const score=calcScore(e);const isToday=key===today;
+    const lec=LEC_SLOTS.reduce((s,id)=>s+(e[id+"_lec"]||0),0);
+    const study=SLOTS.filter(s=>s.id.startsWith("slot")).reduce((s2,sl)=>s2+(e[sl.id]||0),0);
+    const card=document.createElement("div");card.className="wk-card"+(isToday?" today":"");
+    let pips='<div class="pips">';
+    SLOTS.forEach(sl=>{const done=sl.max===1?!!(e[sl.id]):(e[sl.id]||0)>=sl.max;const partial=sl.max>1&&(e[sl.id]||0)>0&&!done;pips+=`<div class="pip" style="background:${done?sl.color:partial?sl.color+"55":"#ffffff0f"};border:1px solid ${done||partial?sl.color+"66":"#ffffff08"}"></div>`;});
+    pips+='</div>';
+    card.innerHTML=`<div class="wk-left"><div class="wk-day${isToday?" today":""}">${WDAYS[i]}</div><div class="wk-date">${fmtDate(key).split(",")[0]||""}</div>${isToday?'<div class="today-badge">TODAY</div>':""}</div><div class="wk-mid">${pips}${e.note?`<div class="wk-note">📝 ${e.note.slice(0,45)}${e.note.length>45?"…":""}</div>`:""}</div><div class="wk-right"><div class="wk-score" style="color:${scoreColor(score)}">${score}%</div><div class="wk-hrs">${study}h study</div><div class="wk-lec">${lec}h lec</div>${e.mood?`<div class="wk-mood">${e.mood}</div>`:""}</div>`;
+    wc.appendChild(card);
+  });
+  document.getElementById("w-lec-val").textContent=totalLec+"/35 hrs";
+  document.getElementById("w-lec-bar").style.width=Math.min(100,(totalLec/35)*100)+"%";
+  document.getElementById("w-lec-sub").textContent=totalLec>=35?"🎉 Weekly lecture target complete!":(35-totalLec)+" hrs remaining this week";
+}
+
+// ── MONTHLY ───────────────────────────────────────────────────────────────
+function shiftMonth(dir){monthRef.setMonth(monthRef.getMonth()+dir);renderMonthly();}
+function renderMonthly(){
+  const today=todayKey();const y=monthRef.getFullYear(),m=monthRef.getMonth();
+  const days=getMonthDays(y,m);const real=days.filter(Boolean);
+  document.getElementById("m-title").textContent=new Date(y,m,1).toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+  const active=real.filter(k=>DATA[k]&&calcScore(DATA[k])>0).length;
+  const sadCount=real.filter(k=>(DATA[k]||{}).sadhana).length;
+  const totalStudy=real.reduce((s,k)=>s+SLOTS.filter(sl=>sl.id.startsWith("slot")).reduce((s2,sl)=>s2+((DATA[k]||{})[sl.id]||0),0),0);
+  const totalLec=real.reduce((s,k)=>s+LEC_SLOTS.reduce((s2,id)=>s2+((DATA[k]||{})[id+"_lec"]||0),0),0);
+  document.getElementById("mqs-active").textContent=active;document.getElementById("mqs-sad").textContent=sadCount;
+  document.getElementById("mqs-study").textContent=totalStudy+"h";document.getElementById("mqs-lec").textContent=totalLec+"h";
+  const cg=document.getElementById("cal-grid");cg.innerHTML="";
+  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(d=>{const l=document.createElement("div");l.className="cal-lbl";l.textContent=d;cg.appendChild(l);});
+  days.forEach(key=>{
+    const cell=document.createElement("div");
+    if(!key){cell.style.cssText="background:transparent;border:none;";cg.appendChild(cell);return;}
+    const score=calcScore(DATA[key]);const isToday=key===today;const e=DATA[key]||{};const sc=scoreColor(score);
+    cell.className="cal-day"+(isToday?" today-cal":"");
+    cell.style.background=score===0?"#ffffff05":sc+"22";
+    if(score>0)cell.style.borderColor=sc+"44";
+    cell.innerHTML=`<div class="cal-dn" style="color:${score>0?sc:"#333"}">${parseInt(key.split("-")[2])}</div>${e.mood?`<div class="cal-mood">${e.mood}</div>`:""}${score>0?`<div class="cal-sc" style="color:${sc}">${score}%</div>`:""}`;
+    cell.title=fmtDate(key)+": "+score+"%";
+    cg.appendChild(cell);
+  });
+  const allKeys=Object.keys(DATA).sort().reverse();
+  let curStreak=0;for(const k of allKeys){if(DATA[k]&&DATA[k].sadhana)curStreak++;else break;}
+  let maxStr=0,cur=0;real.forEach(k=>{if((DATA[k]||{}).sadhana){cur++;maxStr=Math.max(maxStr,cur);}else cur=0;});
+  let sdots="";real.forEach(k=>{sdots+=`<div class="sd${(DATA[k]||{}).sadhana?" done":""}" title="${fmtDate(k)}"></div>`;});
+  document.getElementById("streak-card").innerHTML=`<div class="streak-nums"><div><div class="streak-n" style="color:#FF6B00">${curStreak}</div><div class="streak-l">Current Streak</div></div><div><div class="streak-n" style="color:#F5A623">${maxStr}</div><div class="streak-l">Best This Month</div></div><div><div class="streak-n" style="color:#3B82F6">${sadCount}</div><div class="streak-l">Days Done</div></div></div><div class="streak-dots">${sdots}</div>`;
+  const nl=document.getElementById("notes-list");const nk=real.filter(k=>(DATA[k]||{}).note);
+  nl.innerHTML=nk.length===0?'<div style="font-size:12px;color:#333;padding:12px 0">No notes logged this month yet.</div>':nk.map(k=>`<div class="note-item"><div class="note-date">${fmtDate(k)}</div><div class="note-text">${DATA[k].note}</div></div>`).join("");
+}
+
+// ── BACKUP / RESTORE ──────────────────────────────────────────────────────
+function exportData(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="gate2027_backup_"+todayKey()+".json";a.click();
+}
+function showImport(){document.getElementById("import-file").click();}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const imported=JSON.parse(ev.target.result);
+      DATA={...DATA,...imported};saveData();renderDaily();
+      alert("✅ Data restored successfully!");
+    }catch(err){alert("❌ Invalid backup file.");}
+  };
+  reader.readAsText(file);
+  e.target.value="";
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+loadData();
+updateNetStatus();
+renderDaily();
+</script>
+</body>
+</html>
